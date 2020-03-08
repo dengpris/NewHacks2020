@@ -62,86 +62,62 @@ void setup() {
   
 }
 
-void demoOne()
-{
-  // this function will run the motors in both directions at a fixed speed
-  // turn on motor A
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  // set speed to 200 out of possible range 0~255
-  analogWrite(enA, 200);
-  // turn on motor B
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  // set speed to 200 out of possible range 0~255
-  analogWrite(enB, 200);
-  //delay(2000);
-
-  /*
-  // now change motor directions
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);  
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH); 
-  delay(2000);
-  // now turn off motors
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);  
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
-
-*/
+void stop(){
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW); 
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, LOW); 
 }
 
 void backwards(){
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH); 
-      analogWrite(enA, 100); 
+      analogWrite(enA, 225); 
     digitalWrite(in3, LOW);
     digitalWrite(in4, HIGH); 
-      analogWrite(enB, 100);
-  // now turn off motors
-/*    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);  
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
-*/
-  Serial.println ("backwards");
-  delay(1000);
-  Serial.print(millis()*0.001);
-  Serial.println(" seconds");
-  delay(1000);
+      analogWrite(enB, 200);
 }
 
 void forwards(){
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
-    analogWrite(enA, 100);  
+    analogWrite(enA, 225);  
     digitalWrite(in3, HIGH);
     digitalWrite(in4, LOW);
-    analogWrite(enB, 100);
-    
-    Serial.println("forward");
+    analogWrite(enB, 200);
+   
+}
+
+void turnLeftCheck(){
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+    analogWrite(enA, 250);  
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+    analogWrite(enB, 50);
+    delay(100);//small 
 }
 
 void turnRight(){
      digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
-    analogWrite(enA, 100);  
+    analogWrite(enA, 50);  
     digitalWrite(in3, HIGH);
     digitalWrite(in4, LOW);
-    analogWrite(enB, 25);
-    Serial.println("turn right");
+    analogWrite(enB, 250);
+    Serial.println("turn left");
+    delay(525);
 }
 
-void turnLeft(){
+void turnRightCheck(){
      digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
-    analogWrite(enA, 25);  
+    analogWrite(enA, 250);  
     digitalWrite(in3, HIGH);
     digitalWrite(in4, LOW);
-    analogWrite(enB, 100);
+    analogWrite(enB, 50);
     Serial.println("turn left");
+    delay(100);
 }
 
 void printDistance(){
@@ -168,27 +144,18 @@ void loop() {
     itemFound=false;
   }
 
-  //seconds = millis()*0.001;
-  
-  Serial.print(millis()*0.001);
-  Serial.println(" seconds");
+  printDistance();
   
  if(itemFound == false ){
     forwards();
     Serial.println(prvTurnTime);
-    if(((millis()*0.001- prvTurnTime) < 12) && ((millis()*0.001- prvTurnTime) > 6) &&( turn != 3)){
+    if(((millis()*0.001- prvTurnTime) < 12) && ((millis()*0.001- prvTurnTime) > 6) && itemFound == false){
       //reset prvTurnTime when item is finished being found Found
-      Serial.println("Im here");
       prvTurnTime = millis()*0.001;
       turnRight();
       turn = turn +1; //first turn
-      delay(1000);
+      //delay(225); //angle
 
-    }else{
-      printDistance();
-    }
-    if(turn == 3){
-      turn =0;
     }
  }
 /*
@@ -209,34 +176,42 @@ void loop() {
 */
 
   //turn left or right to find next item
-  if(turnStatus==5){
-    turnRight();  
-  }else if(turnStatus==6){
-    turnLeft();
-  }else if(turnStatus==4){
-    forwards();
-  }
-  
-  
-  //motor
   if(itemFound == true){
-    Serial.println("Item found");
-    printDistance();
-    if(distance>17){
-      Serial.println("greater than 15");
-      forwards();
-    }else if(distance < 15 && distance > 10){
-      Serial.println("greater than 15, less than 10");
-      doorStatus=1;
-      //openDoor();
-      forwards(); //for x amount of time
-    }else if(distance < 10 && distance > 8){
-      Serial.println("greater than 10, less than 8");
-      doorStatus=0;
-      //closeDoor();
-    }else{
-      Serial.println("less than 8");
-      backwards();
+    if(turnStatus==5){
+      turnRightCheck();  
+    }else if(turnStatus==6){
+      turnLeftCheck();
+    }else if(turnStatus==4){
+          Serial.println("Item found");
+          printDistance();
+          if(distance>17){
+            Serial.println("greater than 15");
+            forwards();
+            printDistance();
+          }
+          if(distance < 20 && distance > 10){
+            Serial.println("greater than 15, less than 10");
+            doorStatus=1;
+            //openDoor();
+            stop();
+            delay(2000);
+            forwards(); //for x amount of time
+            printDistance();  
+        }
+          if(distance < 10 && distance > 8){
+            Serial.println("greater than 10, less than 8");
+            doorStatus=0;
+            stop();
+            delay(2000);
+            prvTurnTime = millis()*0.001;
+            itemFound = false;
+            printDistance();
+            //closeDoor();
+          }
+          if(distance<8){
+            backwards();
+          }
     }
   }
+
 }
