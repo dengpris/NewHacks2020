@@ -169,10 +169,10 @@ time.sleep(1)
 x_screen_center = imW//2
 
 # Write onto serial
-ser = serial.Serial("/dev/ttyACM0", 9600)
+ser = serial.Serial("/dev/ttyACM1", 9600)
 
 # Possible trash
-trash = ["knife", "spoon", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "donut", "toothbrush", "bottle"]
+trash = ["knife", "spoon", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "donut", "toothbrush", "bottle", "scissors", "person", "bed"]
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
 while True:
@@ -229,11 +229,11 @@ while True:
             if object_name in trash:
                 distance_from_center = x_center - x_screen_center
                 print(distance_from_center)
-                if(distance_from_center > 10):
+                if(distance_from_center > 20):
                     #turn right
                     #ser.write(b'00000101')
                     ser.write(b'5')
-                elif distance_from_center < -10:
+                elif distance_from_center < -20:
                     #turn left
                     #ser.write(b'00000110')
                     ser.write(b'6')
